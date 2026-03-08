@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROG Game Genie X · Game Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            padding: 12px;
+        }
+        
+        /* Main container - persis kayak screenshot + ROG touch */
+        .rog-game-center {
+            width: 100%;
+            max-width: 400px;
+            background: #0f1219;
+            border-radius: 32px;
+            padding: 24px 20px;
+            box-shadow: 0 25px 50px -8px rgba(255, 69, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.05);
+            border: 1px solid #2a2f3f;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Efek ROG Glow */
+        .rog-game-center::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #ff4500, #ffaa00, #ff4500);
+            border-radius: 34px;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(8px);
+            animation: borderGlow 3s infinite;
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* HEADER - Game Center + Battery (PERSIS FOTO) */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 0 4px;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(255,69,0,0.5);
+        }
+        
+        .battery {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e2433;
+            padding: 6px 14px;
+            border-radius: 40px;
+            border: 1px solid #323a4a;
+        }
+        
+        .battery-icon {
+            width: 26px;
+            height: 14px;
+            background: #4caf50;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 0 0 8px #4caf50;
+        }
+        
+        .battery-icon::after {
+            content: "";
+            position: absolute;
+            right: -4px;
+            top: 3px;
+            width: 3px;
+            height: 6px;
+            background: #4caf50;
+            border-radius: 1px;
+            box-shadow: 0 0 5px #4caf50;
+        }
+        
+        .battery-text {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        /* STATS CARD - 3 kolom (CPU, GPU, MEMORY) */
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            flex: 1;
+            background: #1a202e;
+            border-radius: 24px;
+            padding: 16px 8px;
+            text-align: center;
+            border: 1px solid #2c3445;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        
+        .stat-label {
+            color: #8d98b3;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+        
+        .stat-unit {
+            color: #ff9800;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 2px;
+        }
+        
+        /* MEMORY USED SECTION - PERSIS FOTO */
+        .memory-section {
+            background: #1a202e;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 24px;
+            border: 1px solid #2c3445;
+        }
+        
+        .memory-header {
+            display: flex;
+            justify-content: space-between;
+            color: #8d98b3;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .memory-bar-container {
+            height: 8px;
+            background: #262e40;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 1px solid #333b4d;
+        }
+        
+        .memory-bar-fill {
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(90deg, #ff9800, #ff5722);
+            border-radius: 10px;
+            position: relative;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .memory-bar-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: rgba(255,255,255,0.4);
+            filter: blur(2px);
+        }
+        
+        .memory-numbers {
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .memory-used-num {
+            color: #ff9800;
+            font-weight: 700;
+        }
+        
+        /* FAN SPEED - 3 PILIHAN PERSIS FOTO */
+        .fan-section {
+            background: #1a202e;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 20px;
+            border: 1px solid #2c3445;
+        }
+        
+        .fan-label {
+            color: #8d98b3;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .fan-options {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .fan-btn {
+            flex: 1;
+            background: #262e40;
+            border: 1px solid #3a4357;
+            border-radius: 40px;
+            padding: 14px 0;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #8d98b3;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fan-btn.active {
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            color: white;
+            border-color: #ffaa00;
+            box-shadow: 0 5px 15px rgba(255,87,34,0.4);
+        }
+        
+        .fan-btn.active::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 1.5s infinite;
+        }
+        
+        /* X MODE BUTTON - BESAR PERSIS FOTO */
+        .xmode-section {
+            margin-bottom: 24px;
+        }
+        
+        .xmode-btn {
+            width: 100%;
+            background: #262e40;
+            border: 2px solid #3a4357;
+            border-radius: 60px;
+            padding: 18px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .xmode-btn.active {
+            background: linear-gradient(135deg, #ff4500, #ffaa00);
+            border-color: #ffcc00;
+            box-shadow: 0 10px 30px rgba(255,69,0,0.6);
+        }
+        
+        .xmode-icon {
+            font-size: 24px;
+            color: #ff9800;
+            transition: all 0.3s;
+        }
+        
+        .xmode-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: #8d98b3;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        .xmode-btn.active .xmode-icon,
+        .xmode-btn.active .xmode-text {
+            color: white;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+        
+        /* QUICK TOGGLE (AirTriggers, dll) - ala Game Genie */
+        .quick-toggles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .toggle-item {
+            background: #1a202e;
+            border: 1px solid #2c3445;
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .toggle-item.active {
+            background: #2a3347;
+            border-color: #ff9800;
+            box-shadow: 0 0 15px rgba(255,152,0,0.3);
+        }
+        
+        .toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-icon {
+            font-size: 20px;
+        }
+        
+        .toggle-name {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .toggle-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333d52;
+            transition: all 0.2s;
+        }
+        
+        .toggle-item.active .toggle-status {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+        
+        /* ACTION BUTTONS (Bagikan & Simpan) */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0 16px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            background: #1a202e;
+            border: 1px solid #2c3445;
+            border-radius: 40px;
+            padding: 14px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #8d98b3;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:active {
+            background: #262e40;
+            transform: scale(0.97);
+        }
+        
+        /* Copyright */
+        .copyright {
+            color: #4f5a73;
+            font-size: 11px;
+            text-align: center;
+            padding: 12px 0 4px;
+            border-top: 1px solid #242b3a;
+        }
+        
+        /* ANIMATIONS */
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px #ff4500; }
+            50% { box-shadow: 0 0 25px #ff4500; }
+            100% { box-shadow: 0 0 5px #ff4500; }
+        }
+        
+        .pulse-animation {
+            animation: pulseGlow 1s ease;
+        }
+        
+        /* TOAST NOTIFICATION ala ROG */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .toast-message {
+            background: rgba(15, 18, 25, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ff9800;
+            border-radius: 60px;
+            padding: 16px 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px #ff4500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .toast-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Overlay Game Genie (muncul pas pencet floating) */
+        .game-genie-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9998;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .game-genie-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .genie-menu {
+            background: #0f1219;
+            border: 3px solid #ff9800;
+            border-radius: 40px;
+            padding: 30px;
+            width: 85%;
+            max-width: 350px;
+            box-shadow: 0 0 50px #ff4500;
+            transform: scale(0.8);
+            transition: transform 0.3s;
+        }
+        
+        .game-genie-overlay.show .genie-menu {
+            transform: scale(1);
+        }
+        
+        .genie-menu h2 {
+            color: #ff9800;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+        
+        .genie-item {
+            background: #1a202e;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #2c3445;
+        }
+        
+        .genie-item span {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        /* Floating button ala Game Genie */
+        .floating-genie {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff4500, #ffaa00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 5px 25px rgba(255,69,0,0.7);
+            cursor: pointer;
+            z-index: 9997;
+            transition: all 0.2s;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        
+        .floating-genie:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="rog-game-center">
+        <!-- HEADER - Game Center + Battery (PERSIS FOTO) -->
+        <div class="header">
+            <h1>Game Center</h1>
+            <div class="battery">
+                <div class="battery-icon" id="batteryIcon" style="background: #4caf50;"></div>
+                <span class="battery-text" id="batteryText">59%</span>
+            </div>
+        </div>
+        
+        <!-- STATS ROW (CPU, GPU, MEMORY) - PERSIS FOTO -->
+        <div class="stats-row">
+            <div class="stat-item" id="cpuCard">
+                <div class="stat-label">CPU</div>
+                <div class="stat-value" id="cpuValue">1.26<span class="stat-unit">GHz</span></div>
+            </div>
+            <div class="stat-item" id="gpuCard">
+                <div class="stat-label">GPU</div>
+                <div class="stat-value" id="gpuValue">710<span class="stat-unit">MHz</span></div>
+            </div>
+            <div class="stat-item" id="memoryCard">
+                <div class="stat-label">MEMORY</div>
+                <div class="stat-value" id="memoryValue">4.2<span class="stat-unit">GB</span></div>
+            </div>
+        </div>
+        
+        <!-- MEMORY USED DETAIL - PERSIS FOTO -->
+        <div class="memory-section" id="memorySection">
+            <div class="memory-header">
+                <span>MEMORY USED</span>
+                <span id="memoryPercent">65%</span>
+            </div>
+            <div class="memory-bar-container">
+                <div class="memory-bar-fill" id="memoryBar" style="width: 65%;"></div>
+            </div>
+            <div class="memory-numbers">
+                <span class="memory-used-num" id="memoryUsed">4.2 GB</span>
+                <span id="memoryTotal">6.4 GB</span>
+            </div>
+        </div>
+        
+        <!-- FAN SPEED - 3 PILIHAN PERSIS FOTO -->
+        <div class="fan-section">
+            <div class="fan-label">FAN SPEED</div>
+            <div class="fan-options">
+                <div class="fan-btn" id="fanLow" onclick="setFanSpeed('low')">Low</div>
+                <div class="fan-btn active" id="fanMedium" onclick="setFanSpeed('medium')">Medium</div>
+                <div class="fan-btn" id="fanHigh" onclick="setFanSpeed('high')">High</div>
+            </div>
+        </div>
+        
+        <!-- X MODE BUTTON - BESAR PERSIS FOTO -->
+        <div class="xmode-section">
+            <button class="xmode-btn" id="xmodeBtn" onclick="toggleXMode()">
+                <span class="xmode-icon" id="xmodeIcon">⚡</span>
+                <span class="xmode-text" id="xmodeText">X Mode</span>
+            </button>
+        </div>
+        
+        <!-- QUICK TOGGLES (AirTriggers, Macro, dll) ala Game Genie -->
+        <div class="quick-toggles">
+            <div class="toggle-item" id="airTriggers" onclick="toggleFeature('airTriggers')">
+                <div class="toggle-left">
+                    <span class="toggle-icon">🎯</span>
+                    <span class="toggle-name">AirTriggers</span>
+                </div>
+                <div class="toggle-status" id="airTriggersStatus"></div>
+            </div>
+            <div class="toggle-item" id="macro" onclick="toggleFeature('macro')">
+                <div class="toggle-left">
+                    <span class="toggle-icon">⚡</span>
+                    <span class="toggle-name">Macro</span>
+                </div>
+                <div class="toggle-status" id="macroStatus"></div>
+            </div>
+            <div class="toggle-item" id="autoPickup" onclick="toggleFeature('autoPickup')">
+                <div class="toggle-left">
+                    <span class="toggle-icon">📦</span>
+                    <span class="toggle-name">Auto Pickup</span>
+                </div>
+                <div class="toggle-status" id="autoPickupStatus"></div>
+            </div>
+            <div class="toggle-item" id="scoutMode" onclick="toggleFeature('scoutMode')">
+                <div class="toggle-left">
+                    <span class="toggle-icon">👁️</span>
+                    <span class="toggle-name">Scout Mode</span>
+                </div>
+                <div class="toggle-status" id="scoutModeStatus"></div>
+            </div>
+        </div>
+        
+        <!-- ACTION BUTTONS (Bagikan & Simpan) - PERSIS FOTO -->
+        <div class="action-row">
+            <button class="action-btn" onclick="showToast('📤 Membagikan screenshot...', 'share')">
+                <span>📤</span> Bagikan
+            </button>
+            <button class="action-btn" onclick="showToast('💾 Menyimpan ke galeri...', 'save')">
+                <span>💾</span> Simpan
+            </button>
+        </div>
+        
+        <!-- COPYRIGHT - PERSIS FOTO -->
+        <div class="copyright">
+            Gambar mungkin dilindungi hak cipta. Pelajar
